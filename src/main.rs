@@ -59,24 +59,18 @@ fn open_to_dssim(dis: &Dssim, path: &Path) -> DssimImage<f32> {
 
 fn image_seq_to_delta_vec(dis: &Dssim, dir: &Path, frames: i64) -> Vec<f64> {
     let mut delta_vec: Vec<f64> = vec![];
-    let mut results_vec: Vec<Result<std::fs::DirEntry, std::io::Error>> = fs::read_dir(dir)
-        .expect(&format!(
-            "failed to read {} dir",
-            &dir.file_name()
-                .expect("failed to get directory name")
-                .to_str()
-                .expect("failed to convert directory name to str")
-        ))
-        .collect();
+    let mut results_iter = fs::read_dir(dir).expect(&format!(
+        "failed to read {} dir",
+        &dir.file_name()
+            .expect("failed to get directory name")
+            .to_str()
+            .expect("failed to convert directory name to str")
+    ));
 
-    results_vec.reverse();
+    let mut last = open_to_dssim(dis, &results_iter.next().unwrap().as_ref().unwrap().path());
 
-    let mut last = open_to_dssim(dis, &results_vec.pop().unwrap().unwrap().path());
-
-    results_vec.reverse();
-
-    for result in results_vec {
-        let current = open_to_dssim(dis, &result.unwrap().path());
+    for result in results_iter {
+        let current = open_to_dssim(dis, &result.as_ref().unwrap().path());
         delta_vec.push(dis.compare(&last, &current).0.into());
         last = current;
 
@@ -130,7 +124,6 @@ fn fetch_framerate(path: &Path) -> f64 {
     if output.status.success() {
         let framerate_str = str::from_utf8(&output.stdout).unwrap().replace("\r\n", "");
 
-        // [30000, 1001]
         if framerate_str.contains("/") {
             let mut frac_iter = framerate_str.split("/");
 
