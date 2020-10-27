@@ -27,7 +27,7 @@ fn make_dirs(skip_cache: bool) {
 }
 
 fn split_video(path: &Path, downscale: f32) {
-    Command::new("ffmpeg.exe")
+    Command::new("ffmpeg")
         .arg("-i")
         .arg(path)
         .arg("-vf")
@@ -94,7 +94,7 @@ fn image_seq_to_delta_vec(dis: &Dssim, dir: &Path, frames: i64) -> Vec<f64> {
 fn take_subsect(path: &Path, range: (f64, f64), format: &str) {
     println!("{:?}", range);
 
-    Command::new("ffmpeg.exe")
+    Command::new("ffmpeg")
         .arg("-ss")
         .arg(format!("{}s", range.0))
         .arg("-i")
@@ -114,7 +114,7 @@ fn take_subsect(path: &Path, range: (f64, f64), format: &str) {
 }
 
 fn fetch_framerate(path: &Path) -> f64 {
-    let output = Command::new("ffprobe.exe")
+    let output = Command::new("ffprobe")
         .arg("-v")
         .arg("error")
         .arg("-select_streams")
@@ -145,7 +145,7 @@ fn fetch_framerate(path: &Path) -> f64 {
 }
 
 fn fetch_frames(path: &Path) -> i64 {
-    let mut output = Command::new("ffprobe.exe")
+    let mut output = Command::new("ffprobe")
         .arg("-v")
         .arg("error")
         .arg("-select_streams")
@@ -162,7 +162,7 @@ fn fetch_frames(path: &Path) -> i64 {
 
     match output_str {
         "N/A\r\n" => {
-            output = Command::new("ffprobe.exe")
+            output = Command::new("ffprobe")
                 .arg("-v")
                 .arg("error")
                 .arg("-count_frames")
