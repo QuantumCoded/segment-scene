@@ -85,18 +85,28 @@ fn image_seq_to_delta_vec(dis: &Dssim, dir: &Path, frames: i64) -> Vec<f64> {
     delta_vec
 }
 
-fn take_subsect(path: &Path, range: (f64, f64), format: &str) {
+fn take_subsect(path: &Path, range: (f64, f64), format: &str, img: bool) {
     println!("{:?}", range);
 
-    Command::new("ffmpeg")
+    let mut command = &mut Command::new("ffmpeg");
+
+    command = command
         .arg("-ss")
         .arg(format!("{}s", range.0))
         .arg("-i")
-        .arg(path)
-        .arg("-t")
-        .arg(format!("{}s", range.1))
-        .arg("-vsync")
-        .arg("0")
+        .arg(path);
+
+    if img {
+        command = command.arg("-vframes").arg("1");
+    } else {
+        command = command
+            .arg("-t")
+            .arg(format!("{}s", range.1))
+            .arg("-vsync")
+            .arg("0");
+    }
+
+    command
         .arg(format!(
             "./output/{}-{}.{}",
             range.0,
@@ -211,6 +221,11 @@ fn main() {
                 .help("The output file format"),
         )
         .arg(
+            Arg::with_name("image")
+                .short("i")
+                .help("Export the first frame as an image"),
+        )
+        .arg(
             Arg::with_name("use_cache")
                 .long("use-cache")
                 .help("Uses an already eisting cache to lessen waiting"),
@@ -268,7 +283,7 @@ fn main() {
     for (i, delta) in delta_vec.iter().enumerate() {
         if delta > &threshold {
             let range = calc_range(framerate, (last_peak + 1) as i64, i as i64);
-            take_subsect(video_path, range, format);
+            take_subsect(video_path, range, format, matches.is_present("image"));
             last_peak = i as i64;
         };
     }
@@ -277,6 +292,7 @@ fn main() {
         video_path,
         calc_range(framerate, (last_peak + 1) as i64, delta_vec.len() as i64),
         format,
+        matches.is_present("image"),
     );
 
     if !matches.is_present("keep_cache") {
