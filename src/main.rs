@@ -7,6 +7,16 @@ use std::path::Path;
 use std::process::Command;
 use std::str;
 
+fn pop_rn(string: &mut String) {
+    if let Some('\n') = string.chars().next_back() {
+        string.pop();
+    }
+
+    if let Some('\r') = string.chars().next_back() {
+        string.pop();
+    }
+}
+
 fn make_dirs(skip_cache: bool) {
     let output_path = Path::new("output");
     let cache_path = Path::new("cache");
@@ -148,7 +158,7 @@ fn fetch_framerate(path: &Path) -> f64 {
 }
 
 fn fetch_frames(path: &Path) -> i64 {
-    let mut output = Command::new("ffprobe")
+    let output = Command::new("ffprobe")
         .arg("-v")
         .arg("error")
         .arg("-select_streams")
@@ -161,31 +171,36 @@ fn fetch_frames(path: &Path) -> i64 {
         .output()
         .expect("failed to fecth frame count");
 
-    let output_str = str::from_utf8(&output.stdout).unwrap();
+    let mut output_string = String::from_utf8(output.stdout).unwrap();
 
-    match output_str {
-        "N/A\r\n" => {
-            output = Command::new("ffprobe")
-                .arg("-v")
-                .arg("error")
-                .arg("-count_frames")
-                .arg("-select_streams")
-                .arg("v:0")
-                .arg("-of")
-                .arg("default=noprint_wrappers=1:nokey=1")
-                .arg("-show_entries")
-                .arg("stream=nb_read_frames")
-                .arg(path)
-                .output()
-                .expect("failed to fecth frame count");
+    pop_rn(&mut output_string);
 
-            str::from_utf8(&output.stdout)
-                .unwrap()
-                .replace("\r\n", "")
-                .parse::<i64>()
-                .unwrap()
+    match output_string.as_str() {
+        "N/A" => {
+            let mut output = String::from_utf8(
+                Command::new("ffprobe")
+                    .arg("-v")
+                    .arg("error")
+                    .arg("-count_frames")
+                    .arg("-select_streams")
+                    .arg("v:0")
+                    .arg("-of")
+                    .arg("default=noprint_wrappers=1:nokey=1")
+                    .arg("-show_entries")
+                    .arg("stream=nb_read_frames")
+                    .arg(path)
+                    .output()
+                    .expect("failed to fecth frame count")
+                    .stdout,
+            )
+            .unwrap();
+
+            pop_rn(&mut output);
+
+            output.parse::<i64>().unwrap()
         }
-        _ => output_str.replace("\r\n", "").parse::<i64>().unwrap(),
+
+        _ => output_string.parse::<i64>().unwrap(),
     }
 }
 
