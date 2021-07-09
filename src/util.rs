@@ -260,6 +260,12 @@ pub fn compare_frames(
 }
 
 pub fn split_video(term: &mut Terminal<impl Backend>, app: &mut App, scenes: Vec<RangeInclusive<usize>>) -> io::Result<()> {
+    // make sure output dir exists
+    // split scene
+    // progress split on app
+    // info about split
+    // draw app
+    
     Ok(())
 }
 
