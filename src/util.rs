@@ -244,6 +244,7 @@ pub fn compare_frames(
 
         if min > threshold {
             // we got a scene change
+            // ignoring this for rn
         }
 
         app.progress_compare(threshold, min);
@@ -256,6 +257,10 @@ pub fn compare_frames(
     println!("{:?} {}", scenes, app.framerate().unwrap());
 
     Ok(scenes)
+}
+
+pub fn split_video(term: &mut Terminal<impl Backend>, app: &mut App, scenes: Vec<RangeInclusive<usize>>) -> io::Result<()> {
+    Ok(())
 }
 
 pub fn cleanup(term: &mut Terminal<impl Backend>) -> io::Result<()> {

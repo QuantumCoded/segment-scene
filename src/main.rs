@@ -96,8 +96,8 @@ fn main() -> io::Result<()> {
     util::get_frame_count(&mut term, &mut app)?;
     std::thread::sleep(std::time::Duration::from_secs(2));
     util::create_image_sequence(&mut term, &mut app, scale)?;
-    util::compare_frames(&mut term, &mut app, threshold, lookahead)?;
-    // split frames
+    let scenes = util::compare_frames(&mut term, &mut app, threshold, lookahead)?;
+    util::split_video(&mut term, &mut app, scenes)?;
     util::cleanup(&mut term)?;
 
     Ok(())
