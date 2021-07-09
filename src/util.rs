@@ -122,7 +122,7 @@ pub fn get_frame_count(term: &mut Terminal<impl Backend>, app: &mut App) -> io::
 }
 
 pub fn create_image_sequence(term: &mut Terminal<impl Backend>, app: &mut App, scale: f64) -> io::Result<()> {
-    app.info("split video");
+    app.info("create image sequence");
     app.info("make cache");
     term.draw(|f| app.draw(f))?;
 
