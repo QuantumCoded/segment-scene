@@ -121,7 +121,11 @@ pub fn get_frame_count(term: &mut Terminal<impl Backend>, app: &mut App) -> io::
     Ok(())
 }
 
-pub fn create_image_sequence(term: &mut Terminal<impl Backend>, app: &mut App, scale: f64) -> io::Result<()> {
+pub fn create_image_sequence(
+    term: &mut Terminal<impl Backend>,
+    app: &mut App,
+    scale: f64,
+) -> io::Result<()> {
     app.info("create image sequence");
     app.info("make cache");
     term.draw(|f| app.draw(f))?;
@@ -225,7 +229,13 @@ pub fn compare_frames(
         }
 
         app.progress_compare(threshold, min);
-        app.info(format!("compare frame {} to {} [lookahead = {}]: {} ", app.get_progress(), app.get_progress() + 1, lookahead, min));
+        app.info(format!(
+            "compare frame {} to {} [lookahead = {}]: {} ",
+            app.get_progress(),
+            app.get_progress() + 1,
+            lookahead,
+            min
+        ));
         term.draw(|f| app.draw(f))?;
 
         last_windows = window;
@@ -248,7 +258,13 @@ pub fn compare_frames(
         }
 
         app.progress_compare(threshold, min);
-        app.info(format!("compare frame {} to {} [lookahead = {}]: {} ", app.get_progress(), app.get_progress() + 1, lookahead, min));
+        app.info(format!(
+            "compare frame {} to {} [lookahead = {}]: {} ",
+            app.get_progress(),
+            app.get_progress() + 1,
+            lookahead,
+            min
+        ));
         term.draw(|f| app.draw(f))?;
 
         frames = frames[1..].to_vec();
