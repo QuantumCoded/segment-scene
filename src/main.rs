@@ -1,9 +1,15 @@
+mod app;
+mod util;
+
 #[macro_use]
 extern crate clap;
 
+use app::App;
 use clap::Arg;
+use std::io::{self, stdout};
+use tui::{backend::CrosstermBackend, terminal::Terminal};
 
-fn main() {
+fn main() -> io::Result<()> {
     let matches = app_from_crate!()
         .arg(
             Arg::with_name("INPUT")
@@ -56,18 +62,18 @@ fn main() {
         )
         .get_matches();
 
-    let _input = matches.value_of("INPUT").unwrap();
-    let _scale: f32 = matches
+    let input = matches.value_of("INPUT").unwrap();
+    let scale: f64 = matches
         .value_of("scale")
         .unwrap()
         .parse()
         .expect("could not parse scale value");
-    let _threshold: f64 = matches
+    let threshold: f64 = matches
         .value_of("threshold")
         .unwrap()
         .parse()
         .expect("could not parse threshold value");
-    let _lookahead: u8 = matches
+    let lookahead: u8 = matches
         .value_of("lookahead")
         .unwrap()
         .parse()
@@ -75,4 +81,24 @@ fn main() {
     let _format = matches.value_of("format").unwrap();
     let _slideshow = matches.is_present("slideshow");
     let _keep_cache = matches.is_present("keepcache");
+
+    assert!(lookahead >= 1);
+
+    let stdout = stdout();
+    let backend = CrosstermBackend::new(stdout);
+    let mut term = Terminal::new(backend)?;
+
+    term.clear()?;
+
+    let mut app = App::new(input);
+
+    util::get_framerate(&mut term, &mut app)?;
+    util::get_frame_count(&mut term, &mut app)?;
+    std::thread::sleep(std::time::Duration::from_secs(2));
+    util::split_video(&mut term, &mut app, scale)?;
+    util::compare_frames(&mut term, &mut app, threshold, lookahead)?;
+    // split frames
+    util::cleanup(&mut term)?;
+
+    Ok(())
 }

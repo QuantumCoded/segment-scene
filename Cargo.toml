@@ -10,4 +10,8 @@ description = "A tool for splitting videos at scene changes"
 [dependencies]
 clap = "2.33.3"
 crossterm = "0.20.0"
+dssim-core = "3.1.0"
+image = "0.23.14"
+imgref = "1.9.0"
+rgb = "0.8.27"
 tui = { version = "0.15.0", features = ["crossterm"], default-features = false }
